@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#
+#   Download the AngularJS locale files from the given URL,
+#   then read from the .po files in the project to determine
+#   which locales we actually need, deleting the rest.
+#
+
+ANGULAR_I18N_URL="https://code.angularjs.org/1.2.19/i18n/"
+DEST_DIR=./i18n
+PO_DIRECTORY=../dev/po
+
+#download all the angular i18n files
+mkdir -p $DEST_DIR
+wget --no-clobber --convert-links --random-wait -r -nd -p -E -np -e robots=off -U mozilla -P $DEST_DIR $ANGULAR_I18N_URL 
+
+#get an array of the locales we are using
+locales=('en-us' 'en')
+while read line; do
+    lang=$(basename $line)
+    lang="${lang%.*}"
+    #special case for Polish(Transifex name doesn't match angular locale name)
+    if [ "$lang" = "pl_PL" ]; then
+    	lang="pl-pl"
+    fi
+    locales+=($lang);
+done < <(find $PO_DIRECTORY -name "*po" -type f)
+
+#build a regex alternation pattern like ()
+filenames="(${locales[0]}"
+for lang in "${locales[@]:1}"
+do
+    filenames="$filenames|$lang"
+done
+filenames="$filenames)"
+
+#delete all locale files that don't match the pattern
+while read line; do
+    echo "Removing file '$line'"
+    rm $line
+done < <(find $DEST_DIR -type f | grep -Pv "angular-locale_$filenames\.js")  
