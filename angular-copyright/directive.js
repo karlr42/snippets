@@ -4,11 +4,11 @@ angular.module('karlr42.angular-copyright', []).
 			restrict: "E",
 			replace: true,
 			template : function(element, attrs){
-				var norange = attrs.norange || false;
+				var norange = attrs.norange !== undefined || false;
 				var start;
 				if(attrs.start && !norange){
 					var startYear = parseInt(attrs.start,10);
-					if(startYear == NaN) return "ERROR: Invalid start year "+attrs.start;
+					if(isNaN(startYear)) return "ERROR: Invalid start year "+attrs.start;
 					var currYear = new Date().getFullYear();
 					start = currYear > startYear ? startYear+"-"+currYear : startYear
 				}else{
