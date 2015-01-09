@@ -1,0 +1,1 @@
+An angular directice for generating copyright notices(for footers, etc.).
